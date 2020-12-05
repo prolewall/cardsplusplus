@@ -4,6 +4,14 @@
     <string name="about_btn_text">About</string>
     <string name="quit_btn_text">Quit</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="about_page_label_1">Lead developer</string>
+    <string name="about_page_label_2">Lead developer</string>
+    <string name="about_page_label_3">Lead developer</string>
+    <string name="about_page_label_4">Lead developer</string>
+    <string name="about_page_label_5">Lead developer</string>
+    <string name="author_name">Hubert</string>
+    <string name="author_surname">Kowalik</string>
+
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -19,4 +27,5 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="about_page_title_text">About</string>
 </resources>
