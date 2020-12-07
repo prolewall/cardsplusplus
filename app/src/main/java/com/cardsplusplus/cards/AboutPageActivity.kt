@@ -7,13 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class AboutPageActivity : AppCompatActivity() {
+    private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var creditsList: RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about_page)
-
-        var listView = findViewById<ListView>(R.id.credits_list_view)
 
         var arrayList = java.util.ArrayList<CreditsData>()
         arrayList.add(CreditsData("Lead developer", "Hubert", "Kowalik", 12f, true))
@@ -23,75 +26,75 @@ class AboutPageActivity : AppCompatActivity() {
         arrayList.add(CreditsData("Graphics stealing", "Hubert", "Kowalik", -1f, true))
         arrayList.add(CreditsData("Marketing", "Hubert", "Kowalik", 32f, true))
 
+        creditsList = findViewById<RecyclerView>(R.id.credits_list_view)
+        linearLayoutManager = LinearLayoutManager(this)
 
-        var adapter = CreditsListAdapter(this, arrayList)
-        listView.adapter = adapter
+        var adapter = CreditsListAdapter(arrayList)
+        creditsList.layoutManager = linearLayoutManager
+        creditsList.adapter = adapter
     }
 }
 
 
-class CreditsListAdapter(private val context: Context, private val dataArrayList: java.util.ArrayList<CreditsData>) : BaseAdapter() {
-    private lateinit var label: TextView
-    private lateinit var contentTop: TextView
-    private lateinit var contentBottom: TextView
-    private lateinit var contentFrame: FrameLayout
-    private lateinit var contentImage: ImageView
-    private lateinit var contentLayout: LinearLayout
+class CreditsListAdapter(private val credits: ArrayList<CreditsData>) : RecyclerView.Adapter<CreditsListAdapter.CreditsHolder>() {
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        var convertView = LayoutInflater.from(context).inflate(R.layout.credits_list_item, parent, false)
-        label = convertView.findViewById((R.id.credits_label))
-        contentTop = convertView.findViewById((R.id.credits_content_top))
-        contentBottom = convertView.findViewById((R.id.credits_content_bottom))
-        contentFrame = convertView.findViewById(R.id.credits_content_frame_layout)
-        contentImage = convertView.findViewById(R.id.credits_card_img)
-        contentLayout = convertView.findViewById(R.id.credits_content_text_layout)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CreditsHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return CreditsHolder(inflater, parent)
+    }
 
-        when(dataArrayList[position].isFront){
-            true -> {
-                contentLayout.visibility = View.VISIBLE
-                when(dataArrayList[position].isRed){
-                    true -> contentImage.setImageResource(R.drawable.cards_red_card_front_blank)
-                    false -> contentImage.setImageResource(R.drawable.cards_black_card_front_blank)
+    override fun getItemCount(): Int {
+        return credits.size
+    }
+
+    override fun onBindViewHolder(holder: CreditsHolder, position: Int) {
+        val creditData: CreditsData = credits[position]
+        holder.bind(creditData, position)
+    }
+
+    inner class CreditsHolder(inflater: LayoutInflater, parent: ViewGroup) :
+            RecyclerView.ViewHolder(inflater.inflate(R.layout.credits_list_item, parent,false)) {
+
+        private var label: TextView = itemView.findViewById((R.id.credits_label))
+        private var contentTop: TextView = itemView.findViewById((R.id.credits_content_top))
+        private var contentBottom: TextView = itemView.findViewById((R.id.credits_content_bottom))
+        private var contentFrame: FrameLayout = itemView.findViewById(R.id.credits_content_frame_layout)
+        private var contentImage: ImageView = itemView.findViewById(R.id.credits_card_img)
+        private var contentLayout: LinearLayout = itemView.findViewById(R.id.credits_content_text_layout)
+
+        fun bind(data: CreditsData, pos: Int) {
+            when(data.isFront){
+                true -> {
+                    contentLayout.visibility = View.VISIBLE
+                    when(data.isRed){
+                        true -> contentImage.setImageResource(R.drawable.cards_red_card_front_blank)
+                        false -> contentImage.setImageResource(R.drawable.cards_black_card_front_blank)
+                    }
+                }
+                false -> {
+                    contentLayout.visibility = View.INVISIBLE
+                    when(data.isRed){
+                        true -> contentImage.setImageResource(R.drawable.cards_red_card_back)
+                        false -> contentImage.setImageResource(R.drawable.cards_black_card_back)
+                    }
                 }
             }
-            false -> {
-                contentLayout.visibility = View.INVISIBLE
-                when(dataArrayList[position].isRed){
-                    true -> contentImage.setImageResource(R.drawable.cards_red_card_back)
-                    false -> contentImage.setImageResource(R.drawable.cards_black_card_back)
-                }
+
+
+            label.text = data.label
+            contentTop.text = data.contentTop
+            contentBottom.text = data.contentBottom
+            contentFrame.rotation = data.rotation
+
+            contentFrame.setOnClickListener{
+                flipCard(data)
+                this@CreditsListAdapter.notifyItemChanged(pos)
             }
         }
 
-
-        label.text = dataArrayList[position].label
-        contentTop.text = dataArrayList[position].contentTop
-        contentBottom.text = dataArrayList[position].contentBottom
-        contentFrame.rotation = dataArrayList[position].rotation
-
-        contentFrame.setOnClickListener(){
-            flipCard(position)
-            this.notifyDataSetChanged()
+        private fun flipCard(data: CreditsData) {
+            data.isFront = !data.isFront
         }
-
-        return convertView
-    }
-
-    override fun getItem(position: Int): Any {
-        return dataArrayList[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getCount(): Int {
-        return dataArrayList.count()
-    }
-
-    private fun flipCard(ind: Int) {
-        dataArrayList[ind].isFront = !dataArrayList[ind].isFront
     }
 
 }
