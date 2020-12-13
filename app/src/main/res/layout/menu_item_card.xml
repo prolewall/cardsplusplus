@@ -17,6 +17,5 @@
         android:id="@+id/main_menu_item_card_btn"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_gravity="center"
-        android:background="@drawable/im_play_button" />
+        android:layout_gravity="center" />
 </FrameLayout>
