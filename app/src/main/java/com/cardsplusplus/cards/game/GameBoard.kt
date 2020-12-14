@@ -44,7 +44,7 @@ class GameBoard(context: Context, gameOptions: GameOptions)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        drawPile.putCardOnTop(Card(CardSymbol.HEARTS, CardFigure.N10))
+        drawPile.putCardOnTop(Card(CardSymbol.SPADES, CardFigure.ACE))
 
         this.gameThread = GameThread(this, holder)
         this.gameThread.running = true
