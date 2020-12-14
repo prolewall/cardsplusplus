@@ -6,6 +6,7 @@ enum class GameMode{
 
 class GameOptions(var nrOfPlayers: Int,
                   var nrOfDecks: Int,
+                  var nrOfJokers: Int,
                   var timePerPlayer: Int,
                   var initialCardsPerPlayer: Int,
                   var gameMode: GameMode = GameMode.FREE_PLAY) {
