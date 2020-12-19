@@ -90,9 +90,9 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
             CardFigure.N8 -> draw8(canvas, pos, width, height, symbolSize)
             CardFigure.N9 -> draw9(canvas, pos, width, height, symbolSize)
             CardFigure.N10 -> draw10(canvas, pos, width, height, symbolSize)
-            CardFigure.JACK -> TODO()
-            CardFigure.QUEEN -> TODO()
-            CardFigure.KING -> TODO()
+            CardFigure.JACK -> drawNamedFigure(canvas, pos, width, height)
+            CardFigure.QUEEN -> drawNamedFigure(canvas, pos, width, height)
+            CardFigure.KING -> drawNamedFigure(canvas, pos, width, height)
         }
 
     }
@@ -182,6 +182,19 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun drawNamedFigure(canvas: Canvas, pos: Point, width: Int, height: Int) {
+        val figureDrawable = namedFiguresDrawables[symbol]?.get(figure)
+        drawDrawable(canvas, figureDrawable, pos, width, height)
+        val size = (0.25 * width).toInt()
+        val distFromBorder = (0.02*width).toInt()
+
+        drawSymbols(canvas, pos, width, height, size,
+        listOf(Point(pos.x + distFromBorder, pos.y + distFromBorder)),
+        listOf(Point(pos.x + width - distFromBorder - size,
+                pos.y + height - distFromBorder - size)))
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun drawSymbols(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int,
                             symbolsPos: List<Point>, rotatedSymbolsPos: List<Point>) {
         drawMultipleDrawables(canvas, symbolDrawables[symbol], size, size, symbolsPos)
@@ -250,6 +263,31 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
                 CardSymbol.HEARTS to context.resources.getDrawable(R.drawable.cards_red_card_front_blank, null),
                 CardSymbol.DIAMONDS to context.resources.getDrawable(R.drawable.cards_red_card_front_blank, null)
         )
+
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+        private val namedFiguresDrawables = mapOf<CardSymbol, Map<CardFigure, Drawable>>(
+                CardSymbol.CLUBS to mapOf(
+                        CardFigure.JACK to context.resources.getDrawable(R.drawable.im_cards_spades_jack, null),
+                        CardFigure.QUEEN to context.resources.getDrawable(R.drawable.im_cards_spades_queen, null),
+                        CardFigure.KING to context.resources.getDrawable(R.drawable.im_cards_spades_king, null)
+                ),
+                CardSymbol.SPADES to mapOf(
+                        CardFigure.JACK to context.resources.getDrawable(R.drawable.im_cards_spades_jack, null),
+                        CardFigure.QUEEN to context.resources.getDrawable(R.drawable.im_cards_spades_queen, null),
+                        CardFigure.KING to context.resources.getDrawable(R.drawable.im_cards_spades_king, null)
+                ),
+                CardSymbol.HEARTS to mapOf(
+                        CardFigure.JACK to context.resources.getDrawable(R.drawable.im_cards_spades_jack, null),
+                        CardFigure.QUEEN to context.resources.getDrawable(R.drawable.im_cards_spades_queen, null),
+                        CardFigure.KING to context.resources.getDrawable(R.drawable.im_cards_spades_king, null)
+                ),
+                CardSymbol.DIAMONDS to mapOf(
+                        CardFigure.JACK to context.resources.getDrawable(R.drawable.im_cards_spades_jack, null),
+                        CardFigure.QUEEN to context.resources.getDrawable(R.drawable.im_cards_spades_queen, null),
+                        CardFigure.KING to context.resources.getDrawable(R.drawable.im_cards_spades_king, null)
+                )
+        )
+
 
         private fun figureToText(figure: CardFigure): String {
             return when(figure) {
