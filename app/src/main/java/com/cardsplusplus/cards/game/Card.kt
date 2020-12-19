@@ -25,19 +25,33 @@ enum class CardFigure {
 }
 
 class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
-    private var width: Int = 0
-    private var height: Int = 0
+    var width: Int = 0
+    var height: Int = 0
     var pos: Point = Point(0,0)
     var scale: Float = 3f
     var textSize: Float = 0f
+    var angle: Float = 0f
 
     init {
-        width = (0.2 * context.resources.displayMetrics.xdpi * context.resources.displayMetrics.density).toInt()
+        width = (0.23 * context.resources.displayMetrics.widthPixels).toInt()
         height = (width * (100f/72f)).toInt()
         textSize = (width * 0.15).toFloat()
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun draw(canvas: Canvas, pos: Point, scale: Float, isFront: Boolean = true, angle: Float = this.angle) {
+        this.pos = pos
+        this.scale = scale
+        this.angle = angle
+
+        if(isFront){
+            drawDrawable(canvas, this, pos, width, height, angle)
+        }
+        else{
+            drawDrawable(canvas, cardBack, pos, width, height, angle)
+        }
+
+    }
+
     override fun draw(canvas: Canvas) {
 
         val width = (scale * width).toInt()
@@ -76,7 +90,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun drawFigure(canvas: Canvas, pos: Point, width: Int, height: Int) {
         val symbolSize: Int = (0.35 * width).toInt()
         when(figure) {
@@ -97,12 +110,10 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun drawAce(canvas: Canvas, pos: Point, width: Int, height: Int) {
         drawCenterSymbol(canvas, pos, width, height, (0.8*width).toInt())
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw2(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val centerX = getCenter(pos.x, size, width)
 
@@ -111,13 +122,11 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
         listOf(Point(centerX, getBorder(pos.y, size, height))))
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw3(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         drawCenterSymbol(canvas, pos, width, height, size)
         draw2(canvas, pos, width, height, size)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw4(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val rightBorderX = getBorder(pos.x, size, width)
         val bottomBorderY = getBorder(pos.y, size, height)
@@ -127,13 +136,11 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
                 listOf(Point(pos.x, bottomBorderY), Point(rightBorderX, bottomBorderY)))
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw5(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         drawCenterSymbol(canvas, pos, width, height, size)
         draw4(canvas, pos, width, height, size)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw6(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val centerY = getCenter(pos.y, size, height)
         val borderX = getBorder(pos.x, size, width)
@@ -145,7 +152,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
         draw4(canvas, pos, width, height, size)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw7(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val centerX = getCenter(pos.x, size, width)
         drawSymbols(canvas, pos, width, height, size,
@@ -155,7 +161,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
         draw6(canvas, pos, width, height, size)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw8(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val centerX = getCenter(pos.x, size, width)
         drawSymbols(canvas, pos, width, height, size,
@@ -165,13 +170,11 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
         draw7(canvas, pos, width, height, size)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw9(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         draw4SymbolsPerSide(canvas, pos, width, height, size)
         drawCenterSymbol(canvas, pos, width, height, size)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw10(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val centerX = getCenter(pos.x, size, width)
 
@@ -181,7 +184,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
                 listOf(Point(centerX, (pos.y + height - 0.12*height - size).toInt())))
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun drawNamedFigure(canvas: Canvas, pos: Point, width: Int, height: Int) {
         val figureDrawable = namedFiguresDrawables[symbol]?.get(figure)
         drawDrawable(canvas, figureDrawable, pos, width, height)
@@ -194,14 +196,12 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
                 pos.y + height - distFromBorder - size)))
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun drawSymbols(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int,
                             symbolsPos: List<Point>, rotatedSymbolsPos: List<Point>) {
         drawMultipleDrawables(canvas, symbolDrawables[symbol], size, size, symbolsPos)
         drawMultipleDrawables(canvas, symbolRotatedDrawables[symbol], size, size, rotatedSymbolsPos)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun drawCenterSymbol(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val centerX = getCenter(pos.x, size, width)
         val centerY = getCenter(pos.y, size, height)
@@ -209,7 +209,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
         drawDrawable(canvas, symbolDrawables[symbol], Point(centerX, centerY), size, size)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun draw4SymbolsPerSide(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
         val borderX = getBorder(pos.x, size, width)
         val distFromCenter = (0.02 * height).toInt()
@@ -239,7 +238,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
     }
 
     companion object{
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         private val symbolDrawables = mapOf<CardSymbol, Drawable>(
                 CardSymbol.CLUBS to context.resources.getDrawable(R.drawable.im_cards_clubs_symbol, null),
                 CardSymbol.SPADES to context.resources.getDrawable(R.drawable.im_cards_spades_symbol, null),
@@ -247,7 +245,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
                 CardSymbol.DIAMONDS to context.resources.getDrawable(R.drawable.im_cards_diamonds_symbol, null)
         )
 
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         private val symbolRotatedDrawables = mapOf<CardSymbol, Drawable>(
                 CardSymbol.CLUBS to context.resources.getDrawable(R.drawable.im_cards_clubs_symbol_upside_down, null),
                 CardSymbol.SPADES to context.resources.getDrawable(R.drawable.im_cards_spades_symbol_upside_down, null),
@@ -256,7 +253,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
         )
 
 
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         private val cardDrawables = mapOf<CardSymbol, Drawable>(
                 CardSymbol.CLUBS to context.resources.getDrawable(R.drawable.cards_black_card_front_blank, null),
                 CardSymbol.SPADES to context.resources.getDrawable(R.drawable.cards_black_card_front_blank, null),
@@ -264,7 +260,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
                 CardSymbol.DIAMONDS to context.resources.getDrawable(R.drawable.cards_red_card_front_blank, null)
         )
 
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         private val namedFiguresDrawables = mapOf<CardSymbol, Map<CardFigure, Drawable>>(
                 CardSymbol.CLUBS to mapOf(
                         CardFigure.JACK to context.resources.getDrawable(R.drawable.im_cards_spades_jack, null),
@@ -288,6 +283,7 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
                 )
         )
 
+        private val cardBack = context.resources.getDrawable(R.drawable.cards_red_card_back, null)
 
         private fun figureToText(figure: CardFigure): String {
             return when(figure) {
@@ -316,7 +312,6 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         private val cardFont = TextPaint().apply{
             typeface = ResourcesCompat.getFont(context, R.font.cards_font)
         }
