@@ -3,10 +3,10 @@ package com.cardsplusplus.cards.game
 import android.graphics.Canvas
 import android.graphics.Color
 
-class Player(val name: String, val maxTime: Int = -1) {
+class Player(val name: String, symbol: CardSymbol) {
     val isPlaying = false
     val isFinished = false
-    val remainingTime = maxTime
+    val changeScreenCard = Card(symbol, CardFigure.ACE)
     val hand: PlayersHand = PlayersHand()
 
     init {
@@ -25,7 +25,4 @@ class Player(val name: String, val maxTime: Int = -1) {
         deck.putCardOnTop(this.hand.removeSelectedCard())
     }
 
-    fun draw(canvas: Canvas) {
-
-    }
 }

@@ -10,27 +10,19 @@ import com.cardsplusplus.cards.App.Companion.context
 import com.cardsplusplus.cards.R
 import com.cardsplusplus.cards.utils.drawDrawable
 
-class DeckOfCards(val cardsFront: Boolean): TouchableSurface{
+class DeckOfCards(val cardsFront: Boolean){
     private val deck = mutableListOf<Card>()
 
-    override var touchEvent: GameEvent = GameEvent.NONE
+
 
     var scale: Float = 1f
-    override lateinit var rect: Rect
+    lateinit var rect: Rect
 
     val emptyDeckDrawable: Drawable = context.resources.getDrawable(R.drawable.im_cards_empty_deck, null)
 
     init {
         val width = (Card.WIDTH_PERCENTAGE*context.resources.displayMetrics.widthPixels).toInt()
         rect = Rect(0, 0, width, (Card.HEIGHT_RATIO * width).toInt())
-    }
-
-    fun update(){
-
-    }
-
-    override fun getEvent(pos: Point): GameEvent {
-        return touchEvent
     }
 
     fun createFullDeck(){

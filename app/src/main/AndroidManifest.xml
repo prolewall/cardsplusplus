@@ -10,14 +10,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Cards">
-        <activity android:name=".OnlinePlayMenuActivity"></activity>
-        <activity android:name=".GameActivity" />
-        <activity android:name=".PlayMenuActivity" />
+        <activity android:name=".OnlinePlayMenuActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".GameActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".PlayMenuActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" />
-        <activity android:name=".AboutPageActivity" />
-        <activity android:name=".MainMenuActivity">
+            android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".AboutPageActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MainMenuActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

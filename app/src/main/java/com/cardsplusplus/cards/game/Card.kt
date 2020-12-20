@@ -26,7 +26,9 @@ enum class CardFigure {
 
 class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
     var width: Int = 0
-    var height: Int = 0
+    val height: Int
+        get() = (width * HEIGHT_RATIO).toInt()
+
     var pos: Point = Point(0,0)
     var scale: Float = 3f
     var textSize: Float = 0f
@@ -34,11 +36,10 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
 
     init {
         width = (WIDTH_PERCENTAGE * context.resources.displayMetrics.widthPixels).toInt()
-        height = (width * HEIGHT_RATIO).toInt()
         textSize = (width * 0.15).toFloat()
     }
 
-    fun draw(canvas: Canvas, pos: Point, scale: Float, isFront: Boolean = true, angle: Float = this.angle) {
+    fun draw(canvas: Canvas, pos: Point, scale: Float = 1f, isFront: Boolean = true, angle: Float = this.angle) {
         this.pos = pos
         this.scale = scale
         this.angle = angle
@@ -56,7 +57,7 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
 
         val width = (scale * width).toInt()
         val height = (scale * height).toInt()
-        val textSize = scale * textSize
+        val textSize = (width * 0.15).toFloat()
         //draw blank card
         drawDrawable(canvas, cardDrawables[symbol], pos, width, height)
 

@@ -10,21 +10,22 @@ import com.cardsplusplus.cards.utils.makeRect
 
 class CurrentPlayerField: TouchableSurface {
     override var rect = Rect(0,0,0,0)
-    override var touchEvent: GameEvent = GameEvent.NONE
+
 
     lateinit var player: Player
 
     fun changePlayer(player: Player) {
-        val distFromBorder = 0.1*rect.width()
+        val distFromBorder = 0.18*rect.width()
+        this.player = player
         player.hand.rect = Rect((rect.left + distFromBorder).toInt(),
             (rect.top + 0.1*rect.height()).toInt(),
             (rect.right - distFromBorder).toInt(),
             context.resources.displayMetrics.heightPixels)
     }
 
-    fun draw(canvas: Canvas, player: Player) {
+    fun draw(canvas: Canvas) {
 
-        canvas.drawRect(rect, Paint().apply { color = Color.BLUE })
+        canvas.drawRect(rect, Paint().apply { color = context.resources.getColor(R.color.player_field_color) })
 
         player.hand.draw(canvas, true)
     }
@@ -45,11 +46,4 @@ class CurrentPlayerField: TouchableSurface {
         return event
     }
 
-    companion object{
-        val PlayerNamePaint: Paint = TextPaint().apply {
-            textAlign = Paint.Align.CENTER
-            color = Color.BLACK
-            textSize = 20f
-        }
-    }
 }

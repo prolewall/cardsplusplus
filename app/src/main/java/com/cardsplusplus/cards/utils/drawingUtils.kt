@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.RotateDrawable
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 
 fun drawDrawable(canvas: Canvas, drawable: Drawable?, pos: Point, width: Int, height: Int, angle: Float = 0f) {
@@ -37,6 +38,14 @@ fun drawText(canvas: Canvas, text: String, x: Float, y: Float,
     canvas.drawText(text, x, y, style)
 
     canvas.restore()
+}
+
+fun drawRectText(canvas: Canvas, text: String, rect: Rect, size: Float, color: Int, style: Paint) {
+    style.textSize = size
+    style.color = color
+    style.textAlign = Paint.Align.CENTER
+
+    canvas.drawText(text, rect.exactCenterX(), rect.exactCenterY(), style)
 }
 
 fun drawMultipleDrawables(canvas: Canvas, drawable: Drawable?,

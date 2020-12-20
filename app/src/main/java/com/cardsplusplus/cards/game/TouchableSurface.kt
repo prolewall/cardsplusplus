@@ -6,7 +6,6 @@ import android.util.Log
 
 interface TouchableSurface {
     var rect: Rect
-    var touchEvent: GameEvent
 
     fun wasClicked(point: Point): Boolean {
         return rect.contains(point.x, point.y)
