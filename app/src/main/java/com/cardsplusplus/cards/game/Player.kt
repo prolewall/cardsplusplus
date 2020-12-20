@@ -17,6 +17,14 @@ class Player(val name: String, val maxTime: Int = -1) {
 
     }
 
+    fun drawCardFrom(deck: DeckOfCards) {
+        this.hand.addCard(deck.takeCard())
+    }
+
+    fun playSelectedCardTo(deck: DeckOfCards) {
+        deck.putCardOnTop(this.hand.removeSelectedCard())
+    }
+
     fun draw(canvas: Canvas) {
 
     }

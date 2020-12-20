@@ -25,9 +25,22 @@ class PlayersHand() {
     }
 
     fun removeSelectedCard(): Card {
-        return this.removeCardAt(selectedCardIndex)
+        val card = this.removeCardAt(selectedCardIndex)
+        shiftSelectedRight()
+        return card
     }
 
+    fun shiftSelectedLeft() {
+        if(hand.isNotEmpty()) {
+            selectedCardIndex = (selectedCardIndex + 1) % hand.count()
+        }
+    }
+
+    fun shiftSelectedRight() {
+        if(hand.isNotEmpty()) {
+            selectedCardIndex = (hand.count() + selectedCardIndex - 1) % hand.count()
+        }
+    }
 
     fun draw(canvas: Canvas, showCards: Boolean) {
         val width: Int = rect.width()
@@ -42,13 +55,13 @@ class PlayersHand() {
         var distFromMiddle = 0
         val middleIndex = hand.count() / 2
         var topBound = top
-        for(i: Int in 0 until (hand.count()-1)) {
+        for(i: Int in 0 until (hand.count())) {
             distFromMiddle = (middleIndex - i) * cardOffset
-            if(i == selectedCardIndex) {
-                topBound = rect.top
-            }
-            else{
-                topBound = top
+
+            topBound = if(i == selectedCardIndex) {
+                rect.top
+            } else{
+                top
             }
 
             hand[i].draw(canvas, Point(rect.centerX() + distFromMiddle - hand[i].width/2, topBound), scale)

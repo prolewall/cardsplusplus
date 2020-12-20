@@ -12,14 +12,25 @@ import com.cardsplusplus.cards.utils.drawDrawable
 
 class DeckOfCards(val cardsFront: Boolean): TouchableSurface{
     private val deck = mutableListOf<Card>()
-    var pos: Point = Point(0,0)
+
+    override var touchEvent: GameEvent = GameEvent.NONE
+
     var scale: Float = 1f
-    override var rect = Rect(0,0,0,0)
+    override lateinit var rect: Rect
 
     val emptyDeckDrawable: Drawable = context.resources.getDrawable(R.drawable.im_cards_empty_deck, null)
 
+    init {
+        val width = (Card.WIDTH_PERCENTAGE*context.resources.displayMetrics.widthPixels).toInt()
+        rect = Rect(0, 0, width, (Card.HEIGHT_RATIO * width).toInt())
+    }
+
     fun update(){
 
+    }
+
+    override fun getEvent(pos: Point): GameEvent {
+        return touchEvent
     }
 
     fun createFullDeck(){
@@ -36,12 +47,10 @@ class DeckOfCards(val cardsFront: Boolean): TouchableSurface{
 
     fun draw(canvas: Canvas) {
         if(deck.isEmpty()) {
-            val width = (0.2 * context.resources.displayMetrics.widthPixels).toInt()
-            val height = (width * (100f/72f)).toInt()
-            drawDrawable(canvas, emptyDeckDrawable, pos, width, height)
+            drawDrawable(canvas, emptyDeckDrawable, rect)
         }
         else {
-            deck[0].draw(canvas, pos, scale, cardsFront)
+            deck[0].draw(canvas, Point(rect.left, rect.top), scale, cardsFront)
 
         }
     }
@@ -76,6 +85,10 @@ class DeckOfCards(val cardsFront: Boolean): TouchableSurface{
         }
 
         return cards.toList()
+    }
+
+    fun takeAllCards(): List<Card> {
+        return this.takeMultipleCards(this.deck.count())
     }
 
 }

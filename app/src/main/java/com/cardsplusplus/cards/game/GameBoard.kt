@@ -11,9 +11,10 @@ import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmap
 import com.cardsplusplus.cards.R
+import kotlin.IndexOutOfBoundsException
 
 class GameBoard(context: Context, val gameOptions: GameOptions)
-    : GLSurfaceView(context), SurfaceHolder.Callback {
+    : SurfaceView(context), SurfaceHolder.Callback {
 
     val players = mutableListOf<Player>()
     val drawPile: DeckOfCards = DeckOfCards(false)
@@ -22,6 +23,8 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
 
     var currPlayerIndex: Int = 0
 
+    private val touchableSurfaces: MutableList<TouchableSurface> = mutableListOf()
+
     private lateinit var gameThread: GameThread
 
     init {
@@ -29,6 +32,10 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
         this.holder.addCallback(this)
 
         currPlayerField = CurrentPlayerField()
+
+        touchableSurfaces.add(drawPile)
+        touchableSurfaces.add(throwPile)
+        touchableSurfaces.add(currPlayerField)
     }
 
     fun update() {
@@ -41,10 +48,42 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val clickPos = Point(event.x.toInt(), event.y.toInt())
+        var gameEvent = GameEvent.NONE
 
         when(event.action) {
-            MotionEvent.ACTION_BUTTON_PRESS -> {
+            MotionEvent.ACTION_DOWN -> {
+                for(surface: TouchableSurface in touchableSurfaces) {
+                    if(surface.wasClicked(clickPos)){
+                        gameEvent = surface.getEvent(clickPos)
+                    }
+                }
 
+                when(gameEvent) {
+                    GameEvent.DRAW_CARD -> {
+                        try{
+                            players[currPlayerIndex].drawCardFrom(drawPile)
+                        }
+                        catch(e: IndexOutOfBoundsException) {
+                            drawPile.putMultipleCardsOnTop(throwPile.takeAllCards())
+                            drawPile.shuffle()
+                        }
+
+                    }
+                    GameEvent.PLAY_CARD -> {
+                        try{
+                            players[currPlayerIndex].playSelectedCardTo(throwPile)
+                        }
+                        catch(e: IndexOutOfBoundsException) {
+
+                        }
+                    }
+                    GameEvent.SELECT_LEFT -> {
+                        players[currPlayerIndex].hand.shiftSelectedLeft()
+                    }
+                    GameEvent.SELECT_RIGHT -> {
+                        players[currPlayerIndex].hand.shiftSelectedRight()
+                    }
+                }
             }
         }
 
@@ -82,8 +121,8 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
         val deviceHeight = context.resources.displayMetrics.heightPixels
         val deviceWidth = context.resources.displayMetrics.widthPixels
 
-        drawPile.pos = Point(120, 120)
-        throwPile.pos = Point(500, 120)
+        drawPile.rect.offsetTo(120, 120)
+        throwPile.rect.offsetTo(500, 120)
 
         val height = (deviceHeight * 0.4).toInt()
 
@@ -91,10 +130,11 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
     }
 
     private fun initSurfaces() {
+        drawPile.touchEvent = GameEvent.DRAW_CARD
         drawPile.createFullDeck()
         drawPile.shuffle()
 
-        throwPile.putCardOnTop(drawPile.takeCard())
+        throwPile.touchEvent = GameEvent.PLAY_CARD
 
 
         for(i: Int in 1 until gameOptions.initialCardsPerPlayer) {

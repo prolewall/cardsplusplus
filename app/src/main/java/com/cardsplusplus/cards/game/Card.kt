@@ -33,8 +33,8 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
     var angle: Float = 0f
 
     init {
-        width = (0.23 * context.resources.displayMetrics.widthPixels).toInt()
-        height = (width * (100f/72f)).toInt()
+        width = (WIDTH_PERCENTAGE * context.resources.displayMetrics.widthPixels).toInt()
+        height = (width * HEIGHT_RATIO).toInt()
         textSize = (width * 0.15).toFloat()
     }
 
@@ -238,6 +238,10 @@ class Card(val symbol: CardSymbol, val figure: CardFigure) : Drawable() {
     }
 
     companion object{
+        val WIDTH_PERCENTAGE = 0.23
+
+        val HEIGHT_RATIO = 100f/72f
+
         private val symbolDrawables = mapOf<CardSymbol, Drawable>(
                 CardSymbol.CLUBS to context.resources.getDrawable(R.drawable.im_cards_clubs_symbol, null),
                 CardSymbol.SPADES to context.resources.getDrawable(R.drawable.im_cards_spades_symbol, null),
