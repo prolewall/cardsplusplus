@@ -2,15 +2,20 @@ package com.cardsplusplus.cards.game
 
 import android.content.Context
 import android.graphics.*
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.cardsplusplus.cards.R
 import com.cardsplusplus.cards.utils.*
+import kotlin.math.abs
 
 class GameBoard(context: Context, val gameOptions: GameOptions)
-    : SurfaceView(context), SurfaceHolder.Callback {
+    : SurfaceView(context), SurfaceHolder.Callback, SensorEventListener  {
 
     val players = mutableListOf<Player>()
     val currPlayerField: CurrentPlayerField
@@ -25,6 +30,16 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
 
     private lateinit var gameThread: GameThread
 
+    private var sensorManager: SensorManager
+
+    private var gyroscopeSensor: Sensor? = null
+
+    private var wasTilt = false
+
+    private val tiltEventTimeout = 800 //in miliseconds
+    private val TILT_THRESHOLD = 1.8
+    private var lastTimestamp = 0
+
     init {
         this.isFocusable = true
         this.holder.addCallback(this)
@@ -36,6 +51,9 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
         touchableSurfaces.add(playingField)
         touchableSurfaces.add(currPlayerField)
         touchableSurfaces.add(playerControlField)
+
+        sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
     }
 
     fun update() {
@@ -75,6 +93,8 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         this.gameThread.running = false
         this.gameThread.join()
+
+        sensorManager.unregisterListener(this)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
@@ -84,6 +104,8 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
         this.gameThread = GameThread(this, holder)
         this.gameThread.running = true
         this.gameThread.start()
+
+        sensorManager.registerListener(this, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     override fun draw(canvas: Canvas) {
@@ -198,6 +220,65 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
 
         drawText(canvas, players[currPlayerIndex].name,
                 deviceWidth - distFromSide, deviceHeight - distFromTop, 100f, 180f, color, cardFont)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_GYROSCOPE) {
+            var timestamp = (event.timestamp * 0.000001).toInt()
+
+            val values = event.values.clone()
+
+            val rotX = values[0]
+            val rotY = values[1]
+            val rotZ = values[2]
+
+
+            if(!showChangePlayerScreen) {
+                if(timestamp - lastTimestamp >= tiltEventTimeout){
+                    wasTilt = false
+                    var event = GameEvent.NONE
+                    if(rotZ >= TILT_THRESHOLD) {
+                        event = GameEvent.SELECT_LEFT
+                        lastTimestamp = timestamp
+                        wasTilt = true
+                    }
+                    if(rotZ <= -TILT_THRESHOLD) {
+                        event = GameEvent.SELECT_RIGHT
+                        lastTimestamp = timestamp
+                        wasTilt = true
+                    }
+                    if(rotX <= -TILT_THRESHOLD) {
+                        event = GameEvent.PLAY_CARD
+                        lastTimestamp = timestamp
+                        wasTilt = true
+                    }
+                    if(rotX >= TILT_THRESHOLD) {
+                        event = GameEvent.DRAW_CARD
+                        lastTimestamp = timestamp
+                        wasTilt = true
+                    }
+                    if(rotY >= TILT_THRESHOLD) {
+                        event = GameEvent.PREV_PLAYER
+                        lastTimestamp = timestamp
+                        wasTilt = true
+                    }
+                    if(rotY <= -TILT_THRESHOLD) {
+                        event = GameEvent.NEXT_PLAYER
+                        lastTimestamp = timestamp
+                        wasTilt = true
+                    }
+
+                    handleGameEvent(event)
+                }
+            }
+
+
+
+        }
     }
 
 }
