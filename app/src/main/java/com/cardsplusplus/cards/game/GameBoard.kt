@@ -2,6 +2,7 @@ package com.cardsplusplus.cards.game
 
 import android.content.Context
 import android.graphics.*
+import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -100,10 +101,13 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
     }
 
     private fun handleGameEvent(event: GameEvent) {
+        val currPlayer = players[currPlayerIndex]
+
         when(event) {
             GameEvent.DRAW_CARD -> {
                 try{
-                    players[currPlayerIndex].drawCardFrom(playingField.drawPile)
+                    currPlayer.drawCardFrom(playingField.drawPile)
+                    currPlayer.hand.selectedCardIndex = currPlayer.hand.count() - 1
                 }
                 catch(e: IndexOutOfBoundsException) {
                     playingField.drawPile.putMultipleCardsOnTop(playingField.throwPile.takeAllCards())
@@ -113,17 +117,20 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
             }
             GameEvent.PLAY_CARD -> {
                 try{
-                    players[currPlayerIndex].playSelectedCardTo(playingField.throwPile)
+                    currPlayer.playSelectedCardTo(playingField.throwPile)
+                    if(currPlayer.hand.count() == 0) {
+                        currPlayer.hand.selectedCardIndex = -1
+                    }
                 }
                 catch(e: IndexOutOfBoundsException) {
 
                 }
             }
             GameEvent.SELECT_LEFT -> {
-                players[currPlayerIndex].hand.shiftSelectedLeft()
+                currPlayer.hand.shiftSelectedLeft()
             }
             GameEvent.SELECT_RIGHT -> {
-                players[currPlayerIndex].hand.shiftSelectedRight()
+                currPlayer.hand.shiftSelectedRight()
             }
             GameEvent.NEXT_PLAYER -> {
                 currPlayerIndex = incrementIndex(currPlayerIndex, players.count())

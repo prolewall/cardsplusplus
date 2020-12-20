@@ -2,6 +2,7 @@ package com.cardsplusplus.cards.game
 
 import android.graphics.*
 import android.text.TextPaint
+import android.util.Log
 import com.cardsplusplus.cards.App.Companion.context
 import com.cardsplusplus.cards.R
 import com.cardsplusplus.cards.utils.drawDrawable
@@ -20,7 +21,7 @@ class CurrentPlayerField: TouchableSurface {
         player.hand.rect = Rect((rect.left + distFromBorder).toInt(),
             (rect.top + 0.1*rect.height()).toInt(),
             (rect.right - distFromBorder).toInt(),
-            context.resources.displayMetrics.heightPixels)
+            rect.bottom)
     }
 
     fun draw(canvas: Canvas) {

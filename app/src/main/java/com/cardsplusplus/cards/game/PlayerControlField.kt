@@ -2,6 +2,7 @@ package com.cardsplusplus.cards.game
 
 import android.graphics.*
 import android.text.TextPaint
+import android.util.Log
 import androidx.core.content.res.ResourcesCompat
 import com.cardsplusplus.cards.App
 import com.cardsplusplus.cards.App.Companion.context
