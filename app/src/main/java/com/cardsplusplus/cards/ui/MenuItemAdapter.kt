@@ -1,11 +1,18 @@
 package com.cardsplusplus.cards.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.cardsplusplus.cards.R
+import com.cardsplusplus.cards.game.Card
+import com.cardsplusplus.cards.game.CardFigure
+import com.cardsplusplus.cards.game.CardSymbol
+import com.cardsplusplus.cards.game.PlayingCard
+import kotlin.random.Random
 
 class MenuItemAdapter(private val menuItems: ArrayList<MenuCardData>) :
         RecyclerView.Adapter<MenuItemAdapter.MenuCardItemHolder>() {
@@ -28,9 +35,10 @@ class MenuItemAdapter(private val menuItems: ArrayList<MenuCardData>) :
             RecyclerView.ViewHolder(inflater.inflate(R.layout.menu_item_card, parent,false)) {
 
         private var btn: ImageButton = itemView.findViewById((R.id.main_menu_item_card_btn))
+        private var img: ImageView = itemView.findViewById(R.id.main_menu_item_card_img)
 
         fun bind(data: MenuCardData) {
-            btn.setBackgroundResource(data.imgSrc)
+            img.background = data.cardDrawable
             btn.setOnClickListener(data.listener)
         }
 
@@ -38,4 +46,4 @@ class MenuItemAdapter(private val menuItems: ArrayList<MenuCardData>) :
 
 }
 
-class MenuCardData(var imgSrc: Int, var listener: View.OnClickListener)
+class MenuCardData(var cardDrawable: MenuItemCard, var listener: View.OnClickListener)

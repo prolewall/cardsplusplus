@@ -11,7 +11,7 @@ import com.cardsplusplus.cards.R
 import com.cardsplusplus.cards.utils.drawDrawable
 
 class DeckOfCards(val cardsFront: Boolean){
-    private val deck = mutableListOf<Card>()
+    private val deck = mutableListOf<PlayingCard>()
 
 
 
@@ -21,14 +21,14 @@ class DeckOfCards(val cardsFront: Boolean){
     val emptyDeckDrawable: Drawable = context.resources.getDrawable(R.drawable.im_cards_empty_deck, null)
 
     init {
-        val width = (Card.WIDTH_PERCENTAGE*context.resources.displayMetrics.widthPixels).toInt()
-        rect = Rect(0, 0, width, (Card.HEIGHT_RATIO * width).toInt())
+        val width = (PlayingCard.WIDTH_PERCENTAGE*context.resources.displayMetrics.widthPixels).toInt()
+        rect = Rect(0, 0, width, (PlayingCard.HEIGHT_RATIO * width).toInt())
     }
 
     fun createFullDeck(){
         for(symbol: CardSymbol in CardSymbol.values()){
             for(figure: CardFigure in CardFigure.values()) {
-                deck.add(Card(symbol, figure))
+                deck.add(PlayingCard(symbol, figure))
             }
         }
     }
@@ -42,33 +42,33 @@ class DeckOfCards(val cardsFront: Boolean){
             drawDrawable(canvas, emptyDeckDrawable, rect)
         }
         else {
-            deck[0].draw(canvas, Point(rect.left, rect.top), scale, cardsFront)
+            deck[0].draw(canvas, Point(rect.left, rect.top), cardsFront)
 
         }
     }
 
-    fun putCardOnTop(card: Card){
+    fun putCardOnTop(card: PlayingCard){
         deck.add(0, card)
     }
 
-    fun putMultipleCardsOnTop(cards: List<Card>) {
+    fun putMultipleCardsOnTop(cards: List<PlayingCard>) {
         deck.addAll(cards)
     }
 
-    fun putCardOnBottom(card: Card){
+    fun putCardOnBottom(card: PlayingCard){
         deck.add(deck.count() - 1, card)
     }
 
-    fun putMultipleCardsOnBottom(cards: List<Card>) {
+    fun putMultipleCardsOnBottom(cards: List<PlayingCard>) {
         deck.addAll(deck.count() - 1, cards)
     }
 
-    fun takeCard(): Card {
+    fun takeCard(): PlayingCard {
         return deck.removeAt(0)
     }
 
-    fun takeMultipleCards(quantity: Int): List<Card> {
-        val cards = mutableListOf<Card>()
+    fun takeMultipleCards(quantity: Int): List<PlayingCard> {
+        val cards = mutableListOf<PlayingCard>()
 
         var i = 0
         while(i < quantity){
@@ -79,7 +79,7 @@ class DeckOfCards(val cardsFront: Boolean){
         return cards.toList()
     }
 
-    fun takeAllCards(): List<Card> {
+    fun takeAllCards(): List<PlayingCard> {
         return this.takeMultipleCards(this.deck.count())
     }
 

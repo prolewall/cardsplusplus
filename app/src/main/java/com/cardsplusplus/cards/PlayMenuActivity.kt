@@ -17,6 +17,7 @@ import com.cardsplusplus.cards.game.CardFigure
 import com.cardsplusplus.cards.game.CardSymbol
 import com.cardsplusplus.cards.ui.MenuCardData
 import com.cardsplusplus.cards.ui.MenuItemAdapter
+import com.cardsplusplus.cards.ui.MenuItemCard
 
 
 class PlayMenuActivity : AppCompatActivity() {
@@ -28,15 +29,24 @@ class PlayMenuActivity : AppCompatActivity() {
         setContentView(R.layout.activity_play_menu)
 
         var menuItems = java.util.ArrayList<MenuCardData>()
-        menuItems.add(MenuCardData(R.drawable.ic_play_button, View.OnClickListener {
+        menuItems.add(MenuCardData(MenuItemCard(App.context.getDrawable(R.drawable.ic_play_button_red),
+                "P", Card.cardDrawables[CardSymbol.HEARTS], Card.redCardColor,
+                "Play", Card.blackCardColor),
+                View.OnClickListener {
             val intent = Intent(this, GameActivity::class.java)
             startActivity(intent)
         }))
-        menuItems.add(MenuCardData(R.drawable.ic_internet, View.OnClickListener {
+        menuItems.add(MenuCardData(MenuItemCard(App.context.getDrawable(R.drawable.ic_internet),
+                "O", Card.cardDrawables[CardSymbol.CLUBS], Card.blackCardColor,
+                "Online", Card.redCardColor),
+                View.OnClickListener {
             val intent = Intent(this, OnlinePlayMenuActivity::class.java)
             startActivity(intent)
         }))
-        menuItems.add(MenuCardData(R.drawable.ic_back, View.OnClickListener {
+        menuItems.add(MenuCardData(MenuItemCard(App.context.getDrawable(R.drawable.ic_back),
+                "B", Card.cardDrawables[CardSymbol.CLUBS], Card.blackCardColor,
+                "Back", Card.redCardColor),
+                View.OnClickListener {
             finish()
         }))
 

@@ -29,9 +29,13 @@ fun drawDrawable(canvas: Canvas, drawable: Drawable?, rect: Rect, angle: Float =
 }
 
 fun drawText(canvas: Canvas, text: String, x: Float, y: Float,
-             size: Float, angle: Float, color: Int, style: Paint){
+             size: Float, angle: Float, color: Int, paint: Paint, isCentered: Boolean = false){
+    val style = Paint(paint)
     style.textSize = size
     style.color = color
+
+    if(isCentered)
+        style.textAlign = Paint.Align.CENTER
 
     canvas.save()
     canvas.rotate(angle, x, y)
@@ -40,7 +44,8 @@ fun drawText(canvas: Canvas, text: String, x: Float, y: Float,
     canvas.restore()
 }
 
-fun drawRectText(canvas: Canvas, text: String, rect: Rect, size: Float, color: Int, style: Paint) {
+fun drawRectText(canvas: Canvas, text: String, rect: Rect, size: Float, color: Int, paint: Paint) {
+    val style = Paint(paint)
     style.textSize = size
     style.color = color
     style.textAlign = Paint.Align.CENTER
@@ -49,10 +54,16 @@ fun drawRectText(canvas: Canvas, text: String, rect: Rect, size: Float, color: I
 }
 
 fun drawMultipleDrawables(canvas: Canvas, drawable: Drawable?,
-                          width: Int, height: Int, positions: List<Point>) {
+                          width: Int, height: Int, positions: List<Point>, angle: Float = 0f) {
     for(pos in positions) {
+        canvas.save()
+
+        canvas.rotate(angle, (pos.x + 0.5*width).toFloat(), (pos.y + 0.5*height).toFloat())
         drawDrawable(canvas, drawable, pos, width, height)
+        canvas.restore()
     }
+
+
 }
 
 fun getCenter(a: Int, imgSize: Int, totalSize: Int): Int {

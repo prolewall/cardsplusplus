@@ -6,7 +6,7 @@ import android.graphics.Color
 class Player(val name: String, symbol: CardSymbol) {
     val isPlaying = false
     val isFinished = false
-    val changeScreenCard = Card(symbol, CardFigure.ACE)
+    val changeScreenCard = PlayingCard(symbol, CardFigure.ACE)
     val hand: PlayersHand = PlayersHand()
 
     init {

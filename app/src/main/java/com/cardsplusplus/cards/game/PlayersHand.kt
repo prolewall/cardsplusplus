@@ -7,7 +7,7 @@ import android.util.Log
 import kotlin.math.abs
 
 class PlayersHand() {
-    private val hand = mutableListOf<Card>()
+    private val hand = mutableListOf<PlayingCard>()
     var selectedCardIndex: Int = 0
     var rect = Rect(0,0,0,0)
     var scale: Float = 1f
@@ -16,19 +16,19 @@ class PlayersHand() {
         return hand.count()
     }
 
-    fun addCard(card: Card){
+    fun addCard(card: PlayingCard){
         hand.add(card)
     }
 
-    fun addMultipleCards(cards: List<Card>){
+    fun addMultipleCards(cards: List<PlayingCard>){
         hand.addAll(cards)
     }
 
-    fun removeCardAt(index: Int): Card {
+    fun removeCardAt(index: Int): PlayingCard {
         return hand.removeAt(index)
     }
 
-    fun removeSelectedCard(): Card {
+    fun removeSelectedCard(): PlayingCard {
         val card = this.removeCardAt(selectedCardIndex)
         shiftSelectedRight()
         return card
@@ -69,7 +69,7 @@ class PlayersHand() {
                     top
                 }
 
-                hand[i].draw(canvas, Point(rect.centerX() + distFromMiddle - hand[i].width/2, topBound), scale)
+                hand[i].draw(canvas, Point(rect.centerX() + distFromMiddle - hand[i].width/2, topBound))
             }
         }
 

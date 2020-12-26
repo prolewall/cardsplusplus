@@ -213,13 +213,15 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
         } else {
             context.resources.getColor(R.color.red_card_color)
         }
-        val distFromSide = (0.65*deviceWidth).toFloat()
-        val distFromTop = (0.2*deviceHeight).toFloat()
-        drawText(canvas, players[currPlayerIndex].name,
-                distFromSide, distFromTop, 100f, 0f, color, cardFont)
 
-        drawText(canvas, players[currPlayerIndex].name,
-                deviceWidth - distFromSide, deviceHeight - distFromTop, 100f, 180f, color, cardFont)
+        drawText(canvas, players[currPlayerIndex].name, card.bounds.exactCenterX(),
+                (card.bounds.top + 0.1*card.bounds.height()).toFloat(),100f, 0f,
+                color, Card.cardFont, true)
+
+        drawText(canvas, players[currPlayerIndex].name, card.bounds.exactCenterX(),
+                (card.bounds.bottom - 0.1*card.bounds.height()).toFloat(),100f, 180f,
+                color, Card.cardFont, true)
+
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

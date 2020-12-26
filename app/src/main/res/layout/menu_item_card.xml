@@ -10,12 +10,13 @@
         android:id="@+id/main_menu_item_card_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/cards_black_card_front_blank" />
+         />
 
 
     <ImageButton
         android:id="@+id/main_menu_item_card_btn"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:alpha="0"/>
 </FrameLayout>
