@@ -17,6 +17,7 @@
         android:paddingBottom="10dp"
         android:text="@string/about_page_title_text"
         android:textSize="30sp"
+        android:fontFamily="@font/cards_font"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
