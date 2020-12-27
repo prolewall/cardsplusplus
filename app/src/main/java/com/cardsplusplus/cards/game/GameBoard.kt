@@ -1,18 +1,21 @@
 package com.cardsplusplus.cards.game
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Point
+import android.graphics.Rect
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.cardsplusplus.cards.App.Companion.deviceHeight
+import com.cardsplusplus.cards.App.Companion.deviceWidth
 import com.cardsplusplus.cards.R
 import com.cardsplusplus.cards.utils.*
-import kotlin.math.abs
 
 class GameBoard(context: Context, val gameOptions: GameOptions)
     : SurfaceView(context), SurfaceHolder.Callback, SensorEventListener  {
@@ -26,7 +29,7 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
 
     var showChangePlayerScreen = true
 
-    private val touchableSurfaces: MutableList<TouchableSurface> = mutableListOf()
+    val touchableSurfaces: MutableList<TouchableSurface> = mutableListOf()
 
     private lateinit var gameThread: GameThread
 
@@ -39,6 +42,9 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
     private val tiltEventTimeout = 800 //in miliseconds
     private val TILT_THRESHOLD = 1.8
     private var lastTimestamp = 0
+
+    private val cardChangeSpeed: Long = 200
+    private val playerChangeSpeed: Long = 300
 
     init {
         this.isFocusable = true
@@ -63,13 +69,18 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+
         val clickPos = Point(event.x.toInt(), event.y.toInt())
         var gameEvent = GameEvent.NONE
 
         when(event.action) {
             MotionEvent.ACTION_DOWN -> {
                 if(showChangePlayerScreen) {
-                    showChangePlayerScreen = false
+
+                    val card = players[currPlayerIndex].changeScreenCard
+                    animateHorizontalMove(card, card.bounds.left, deviceWidth, playerChangeSpeed)
+
+                    this.postDelayed({ showChangePlayerScreen = false}, playerChangeSpeed)
                 }
                 else{
                     for(surface: TouchableSurface in touchableSurfaces) {
@@ -128,8 +139,13 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
         when(event) {
             GameEvent.DRAW_CARD -> {
                 try{
+                    val hand = currPlayer.hand
+
                     currPlayer.drawCardFrom(playingField.drawPile)
+                    animateVerticalMove(hand.getSelectedCard(), hand.rect.top, hand.handTop, cardChangeSpeed)
                     currPlayer.hand.selectedCardIndex = currPlayer.hand.count() - 1
+                    animateDiagonalMove(hand.getSelectedCard(), playingField.drawPile.pos,
+                            Point(hand.getSelectedCard().pos.x, hand.rect.top), 250)
                 }
                 catch(e: IndexOutOfBoundsException) {
                     playingField.drawPile.putMultipleCardsOnTop(playingField.throwPile.takeAllCards())
@@ -139,20 +155,40 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
             }
             GameEvent.PLAY_CARD -> {
                 try{
-                    currPlayer.playSelectedCardTo(playingField.throwPile)
+                    val hand = currPlayer.hand
+                    val card = hand.getSelectedCard()
+
+                    animateDiagonalMove(card, card.pos, playingField.throwPile.pos, 250)
+
+                    animateVerticalMove(hand.getRightCard(), hand.handTop, hand.rect.top, cardChangeSpeed)
+
+                    this.postDelayed({currPlayer.playSelectedCardTo(playingField.throwPile)
+                        }, 250)
                     if(currPlayer.hand.count() == 0) {
                         currPlayer.hand.selectedCardIndex = -1
                     }
                 }
-                catch(e: IndexOutOfBoundsException) {
-
-                }
+                catch(e: IndexOutOfBoundsException) { }
             }
             GameEvent.SELECT_LEFT -> {
-                currPlayer.hand.shiftSelectedLeft()
+                val hand = currPlayer.hand
+
+                try{
+                    animateVerticalMove(hand.getSelectedCard(), hand.rect.top, hand.handTop, cardChangeSpeed)
+                    currPlayer.hand.shiftSelectedLeft()
+                    animateVerticalMove(hand.getSelectedCard(), hand.handTop, hand.rect.top, cardChangeSpeed)
+                }
+                catch(e: IndexOutOfBoundsException) { }
             }
             GameEvent.SELECT_RIGHT -> {
-                currPlayer.hand.shiftSelectedRight()
+                val hand = currPlayer.hand
+
+                try{
+                    animateVerticalMove(hand.getSelectedCard(), hand.rect.top, hand.handTop, cardChangeSpeed)
+                    currPlayer.hand.shiftSelectedRight()
+                    animateVerticalMove(hand.getSelectedCard(), hand.handTop, hand.rect.top, cardChangeSpeed)
+                }
+                catch(e: IndexOutOfBoundsException) { }
             }
             GameEvent.NEXT_PLAYER -> {
                 currPlayerIndex = incrementIndex(currPlayerIndex, players.count())
@@ -167,9 +203,6 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
     }
 
     private fun positionSurfaces() {
-        val deviceHeight = context.resources.displayMetrics.heightPixels
-        val deviceWidth = context.resources.displayMetrics.widthPixels
-
         val height = (deviceHeight * 0.35).toInt()
         val controlPanelHeight = (deviceHeight * 0.15).toInt()
 
@@ -185,43 +218,35 @@ class GameBoard(context: Context, val gameOptions: GameOptions)
         playingField.drawPile.shuffle()
 
         for(i: Int in 1 until gameOptions.initialCardsPerPlayer) {
+
             val player = Player("Player $i", CardSymbol.values()[i-1])
             player.hand.addMultipleCards(playingField.drawPile.takeMultipleCards(gameOptions.initialCardsPerPlayer))
             players.add(player)
         }
-
         changePlayer(0)
     }
 
     private fun changePlayer(playerIndex: Int) {
-        currPlayerField.changePlayer(players[playerIndex])
-        playerControlField.player = players[playerIndex]
+        val card = players[playerIndex].changeScreenCard
+
+        card.width = (0.9 * deviceWidth).toInt()
+        val pos = Point(getCenter(0, card.width,deviceWidth),
+                getCenter(0, card.height, deviceHeight))
+        card.bounds = Rect(pos.x, pos.y, pos.x + card.width, pos.y + card.height)
+
+        animateHorizontalMove(card, deviceWidth, pos.x, 300)
+
         showChangePlayerScreen = true
+        this.postDelayed({
+            currPlayerField.changePlayer(players[playerIndex])
+            playerControlField.player = players[playerIndex]
+            }, 300)
+
     }
 
     private fun drawChangePlayerScreen(canvas: Canvas) {
-        val deviceWidth = context.resources.displayMetrics.widthPixels
-        val deviceHeight = context.resources.displayMetrics.heightPixels
-        val card = players[currPlayerIndex].changeScreenCard
 
-        card.width = (0.9 * context.resources.displayMetrics.widthPixels).toInt()
-        card.draw(canvas, Point(getCenter(0, card.width,deviceWidth),
-                getCenter(0, card.height, deviceHeight)))
-
-        val color = if(card.symbol == CardSymbol.DIAMONDS || card.symbol == CardSymbol.HEARTS) {
-            Color.BLACK
-        } else {
-            context.resources.getColor(R.color.red_card_color)
-        }
-
-        drawText(canvas, players[currPlayerIndex].name, card.bounds.exactCenterX(),
-                (card.bounds.top + 0.1*card.bounds.height()).toFloat(),100f, 0f,
-                color, Card.cardFont, true)
-
-        drawText(canvas, players[currPlayerIndex].name, card.bounds.exactCenterX(),
-                (card.bounds.bottom - 0.1*card.bounds.height()).toFloat(),100f, 180f,
-                color, Card.cardFont, true)
-
+        players[currPlayerIndex].changeScreenCard.draw(canvas)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

@@ -1,13 +1,11 @@
 package com.cardsplusplus.cards.game
 
-import android.graphics.*
-import android.text.TextPaint
-import android.util.Log
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Point
+import android.graphics.Rect
 import com.cardsplusplus.cards.App.Companion.context
 import com.cardsplusplus.cards.R
-import com.cardsplusplus.cards.utils.drawDrawable
-import com.cardsplusplus.cards.utils.drawText
-import com.cardsplusplus.cards.utils.makeRect
 
 class CurrentPlayerField: TouchableSurface {
     override var rect = Rect(0,0,0,0)
@@ -28,7 +26,7 @@ class CurrentPlayerField: TouchableSurface {
 
         canvas.drawRect(rect, Paint().apply { color = context.resources.getColor(R.color.player_field_color) })
 
-        player.hand.draw(canvas, true)
+        player.hand.draw(canvas)
     }
 
     override fun getEvent(pos: Point): GameEvent {

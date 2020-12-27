@@ -1,31 +1,23 @@
 package com.cardsplusplus.cards.utils
 
-import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Point
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.RotateDrawable
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 
-fun drawDrawable(canvas: Canvas, drawable: Drawable?, pos: Point, width: Int, height: Int, angle: Float = 0f) {
-    drawable?.bounds = Rect(pos.x, pos.y, pos.x + width, pos.y + height)
 
+fun drawDrawable(canvas: Canvas, img: Drawable?, angle: Float = 0f) {
     canvas.save()
-    canvas.rotate(angle, (pos.x + 0.5*width).toFloat(), (pos.y + 0.5*height).toFloat())
-    drawable?.draw(canvas)
+    canvas.rotate(angle, img?.bounds!!.exactCenterX(), img?.bounds!!.exactCenterY())
+    img.draw(canvas)
 
     canvas.restore()
 }
 
-fun drawDrawable(canvas: Canvas, drawable: Drawable?, rect: Rect, angle: Float = 0f) {
-    drawable?.bounds = rect
-
-    canvas.save()
-    canvas.rotate(angle, rect.exactCenterX(), rect.exactCenterY())
-    drawable?.draw(canvas)
-
-    canvas.restore()
+fun drawDrawable(canvas: Canvas, img: Drawable?, rect: Rect, angle: Float = 0f){
+    img?.bounds = rect
+    drawDrawable(canvas, img, angle)
 }
 
 fun drawText(canvas: Canvas, text: String, x: Float, y: Float,
@@ -56,14 +48,8 @@ fun drawRectText(canvas: Canvas, text: String, rect: Rect, size: Float, color: I
 fun drawMultipleDrawables(canvas: Canvas, drawable: Drawable?,
                           width: Int, height: Int, positions: List<Point>, angle: Float = 0f) {
     for(pos in positions) {
-        canvas.save()
-
-        canvas.rotate(angle, (pos.x + 0.5*width).toFloat(), (pos.y + 0.5*height).toFloat())
-        drawDrawable(canvas, drawable, pos, width, height)
-        canvas.restore()
+        drawDrawable(canvas, drawable, makeRect(pos, width, height), angle)
     }
-
-
 }
 
 fun getCenter(a: Int, imgSize: Int, totalSize: Int): Int {

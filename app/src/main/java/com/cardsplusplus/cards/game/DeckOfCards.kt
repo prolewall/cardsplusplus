@@ -4,25 +4,30 @@ import android.graphics.Canvas
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.cardsplusplus.cards.App.Companion.context
 import com.cardsplusplus.cards.R
-import com.cardsplusplus.cards.utils.drawDrawable
 
 class DeckOfCards(val cardsFront: Boolean){
     private val deck = mutableListOf<PlayingCard>()
 
-
-
-    var scale: Float = 1f
-    lateinit var rect: Rect
+    private var innerRect: Rect = Rect(0,0,0,0)
+    var rect: Rect
+        set(newRect) {
+            innerRect = newRect
+            update()
+        }
+        get() = innerRect
 
     val emptyDeckDrawable: Drawable = context.resources.getDrawable(R.drawable.im_cards_empty_deck, null)
+
+    val pos: Point
+        get() = Point(this.rect.left, this.rect.top)
 
     init {
         val width = (PlayingCard.WIDTH_PERCENTAGE*context.resources.displayMetrics.widthPixels).toInt()
         rect = Rect(0, 0, width, (PlayingCard.HEIGHT_RATIO * width).toInt())
+
+
     }
 
     fun createFullDeck(){
@@ -35,24 +40,30 @@ class DeckOfCards(val cardsFront: Boolean){
 
     fun shuffle() {
         deck.shuffle()
+        update()
     }
 
     fun draw(canvas: Canvas) {
         if(deck.isEmpty()) {
-            drawDrawable(canvas, emptyDeckDrawable, rect)
+            emptyDeckDrawable.bounds = rect
+            emptyDeckDrawable.draw(canvas)
         }
         else {
-            deck[0].draw(canvas, Point(rect.left, rect.top), cardsFront)
+            deck[0].isFront = cardsFront
 
+            deck[0].draw(canvas)
+            deck[0].isFront = true
         }
     }
 
     fun putCardOnTop(card: PlayingCard){
         deck.add(0, card)
+        update()
     }
 
     fun putMultipleCardsOnTop(cards: List<PlayingCard>) {
         deck.addAll(cards)
+        update()
     }
 
     fun putCardOnBottom(card: PlayingCard){
@@ -64,7 +75,9 @@ class DeckOfCards(val cardsFront: Boolean){
     }
 
     fun takeCard(): PlayingCard {
-        return deck.removeAt(0)
+        val card =  deck.removeAt(0)
+        update()
+        return card
     }
 
     fun takeMultipleCards(quantity: Int): List<PlayingCard> {
@@ -81,6 +94,13 @@ class DeckOfCards(val cardsFront: Boolean){
 
     fun takeAllCards(): List<PlayingCard> {
         return this.takeMultipleCards(this.deck.count())
+    }
+
+    fun update() {
+        if(deck.isNotEmpty()) {
+            deck[0].bounds = rect
+        }
+        emptyDeckDrawable.bounds = rect
     }
 
 }

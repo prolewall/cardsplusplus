@@ -1,7 +1,6 @@
 package com.cardsplusplus.cards.game
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
@@ -13,7 +12,7 @@ import com.cardsplusplus.cards.App.Companion.context
 import com.cardsplusplus.cards.R
 import com.cardsplusplus.cards.utils.drawDrawable
 import com.cardsplusplus.cards.utils.drawText
-import com.cardsplusplus.cards.utils.getCenter
+import com.cardsplusplus.cards.utils.makeRect
 
 abstract class Card: Drawable() {
     var width: Int
@@ -34,6 +33,8 @@ abstract class Card: Drawable() {
 
     var angle: Float = 0f
 
+    var isFront: Boolean = true
+
     init {
         width = (Card.WIDTH_PERCENTAGE * App.context.resources.displayMetrics.widthPixels).toInt()
     }
@@ -48,35 +49,43 @@ abstract class Card: Drawable() {
 
     override fun draw(canvas: Canvas) {
         //draw blank card
-        drawDrawable(canvas, cardDrawable, pos, width, height)
+        if(!isFront) {
+            cardBack?.bounds = this.bounds
+            drawDrawable(canvas, cardBack, angle)
+        }
+        else{
+            cardDrawable?.bounds = this.bounds
+            drawDrawable(canvas, cardDrawable, angle)
 
-        val symbolSize = (width * 0.1).toInt()
-        val symbolDistanceFromSide = (width * 0.05).toInt()
-        val symbolDistanceFromTop = (height * 0.15).toInt()
-        // top left symbol
-        drawDrawable(canvas, symbolDrawable,
-                Point(pos.x + symbolDistanceFromSide, pos.y + symbolDistanceFromTop),
-                symbolSize, symbolSize)
-        // bottom right symbol rotated
-        drawDrawable(canvas, symbolDrawable,
-                Point(pos.x + width - symbolSize - symbolDistanceFromSide,
-                        pos.y + height - symbolSize - symbolDistanceFromTop),
-                symbolSize, symbolSize, 180f)
-        // top left text
-        drawText(canvas, figureText,
-                (pos.x + symbolDistanceFromSide).toFloat(),
-                (pos.y + symbolDistanceFromTop - 0.02 * height).toFloat(),
-                textSize, 0f, cardColor, Card.cardFont)
-        // bottom right text rotated
-        drawText(canvas, figureText,
-                (pos.x + width - symbolDistanceFromSide).toFloat(),
-                (pos.y + height - symbolDistanceFromTop + 0.02 * height).toFloat(),
-                textSize, 180f, cardColor, Card.cardFont)
+            val symbolSize = (width * 0.1).toInt()
+            val symbolDistanceFromSide = (width * 0.05).toInt()
+            val symbolDistanceFromTop = (height * 0.15).toInt()
+            // top left symbol
+            drawDrawable(canvas, symbolDrawable, makeRect(
+                    Point(pos.x + symbolDistanceFromSide, pos.y + symbolDistanceFromTop),
+                    symbolSize, symbolSize))
+            // bottom right symbol rotated
+            drawDrawable(canvas, symbolDrawable, makeRect(
+                    Point(pos.x + width - symbolSize - symbolDistanceFromSide,
+                            pos.y + height - symbolSize - symbolDistanceFromTop),
+                    symbolSize, symbolSize), 180f)
+            // top left text
+            drawText(canvas, figureText,
+                    (pos.x + symbolDistanceFromSide).toFloat(),
+                    (pos.y + symbolDistanceFromTop - 0.02 * height).toFloat(),
+                    textSize, 0f, cardColor, Card.cardFont)
+            // bottom right text rotated
+            drawText(canvas, figureText,
+                    (pos.x + width - symbolDistanceFromSide).toFloat(),
+                    (pos.y + height - symbolDistanceFromTop + 0.02 * height).toFloat(),
+                    textSize, 180f, cardColor, Card.cardFont)
 
-        val figDistanceFromSide = (0.17 * width).toInt()
-        val figDistanceFromTop = (0.15 * width).toInt()
-        drawFigure(canvas, Point(pos.x + figDistanceFromSide, pos.y + figDistanceFromTop),
-                width - 2 * figDistanceFromSide, height - 2 * figDistanceFromSide)
+            val figDistanceFromSide = (0.17 * width).toInt()
+            val figDistanceFromTop = (0.15 * width).toInt()
+            drawFigure(canvas, Point(pos.x + figDistanceFromSide, pos.y + figDistanceFromTop),
+                    width - 2 * figDistanceFromSide, height - 2 * figDistanceFromSide)
+
+        }
 
     }
 
@@ -89,6 +98,8 @@ abstract class Card: Drawable() {
     abstract val cardColor: Int
 
     abstract val cardDrawable: Drawable?
+
+    abstract val cardBack: Drawable?
 
     companion object {
         const val WIDTH_PERCENTAGE = 0.23

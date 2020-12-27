@@ -46,4 +46,4 @@ class MenuItemAdapter(private val menuItems: ArrayList<MenuCardData>) :
 
 }
 
-class MenuCardData(var cardDrawable: MenuItemCard, var listener: View.OnClickListener)
+class MenuCardData(var cardDrawable: CustomCard, var listener: View.OnClickListener)

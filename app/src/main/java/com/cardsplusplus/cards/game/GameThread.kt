@@ -31,6 +31,4 @@ class GameThread(private val gameBoard: GameBoard, private val surfaceHolder: Su
             }
         }
     }
-
-
 }

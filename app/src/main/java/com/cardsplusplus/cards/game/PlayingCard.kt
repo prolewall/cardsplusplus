@@ -32,16 +32,13 @@ class PlayingCard(val symbol: CardSymbol, val figure: CardFigure) : Card() {
     override val cardDrawable: Drawable?
         get() = cardDrawables[symbol]
 
-    fun draw(canvas: Canvas, pos: Point, isFront: Boolean = true, angle: Float = this.angle) {
-        this.bounds = Rect(pos.x, pos.y, pos.x + width, pos.y + height)
+    override val cardBack: Drawable?
+        get() = Card.cardBack
+
+    fun draw(canvas: Canvas, angle: Float = this.angle) {
         this.angle = angle
 
-        if (isFront) {
-            drawDrawable(canvas, this, pos, width, height, angle)
-        } else {
-            drawDrawable(canvas, Card.cardBack, pos, width, height, angle)
-        }
-
+        drawDrawable(canvas, this, angle)
     }
 
     override fun drawFigure(canvas: Canvas, pos: Point, width: Int, height: Int) {
@@ -139,7 +136,7 @@ class PlayingCard(val symbol: CardSymbol, val figure: CardFigure) : Card() {
 
     private fun drawNamedFigure(canvas: Canvas, pos: Point, width: Int, height: Int) {
         val figureDrawable = namedFiguresDrawables[symbol]?.get(figure)
-        drawDrawable(canvas, figureDrawable, pos, width, height)
+        drawDrawable(canvas, figureDrawable, makeRect(pos, width, height))
         val size = (0.25 * width).toInt()
         val distFromBorder = (0.02 * width).toInt()
 
@@ -159,7 +156,7 @@ class PlayingCard(val symbol: CardSymbol, val figure: CardFigure) : Card() {
         val centerX = getCenter(pos.x, size, width)
         val centerY = getCenter(pos.y, size, height)
 
-        drawDrawable(canvas, symbolDrawables[symbol], Point(centerX, centerY), size, size)
+        drawDrawable(canvas, symbolDrawables[symbol], makeRect(Point(centerX, centerY), size, size))
     }
 
     private fun draw4SymbolsPerSide(canvas: Canvas, pos: Point, width: Int, height: Int, size: Int) {
@@ -194,14 +191,14 @@ class PlayingCard(val symbol: CardSymbol, val figure: CardFigure) : Card() {
 
         const val HEIGHT_RATIO = 100f / 72f
 
-        private val symbolDrawables = mapOf<CardSymbol, Drawable>(
+        val symbolDrawables = mapOf<CardSymbol, Drawable>(
                 CardSymbol.CLUBS to context.resources.getDrawable(R.drawable.im_cards_clubs_symbol, null),
                 CardSymbol.SPADES to context.resources.getDrawable(R.drawable.im_cards_spades_symbol, null),
                 CardSymbol.HEARTS to context.resources.getDrawable(R.drawable.im_cards_hearts_symbol, null),
                 CardSymbol.DIAMONDS to context.resources.getDrawable(R.drawable.im_cards_diamonds_symbol, null)
         )
 
-        private val namedFiguresDrawables = mapOf<CardSymbol, Map<CardFigure, Drawable>>(
+        val namedFiguresDrawables = mapOf<CardSymbol, Map<CardFigure, Drawable>>(
                 CardSymbol.CLUBS to mapOf(
                         CardFigure.JACK to context.resources.getDrawable(R.drawable.im_cards_spades_jack, null),
                         CardFigure.QUEEN to context.resources.getDrawable(R.drawable.im_cards_spades_queen, null),
@@ -224,7 +221,7 @@ class PlayingCard(val symbol: CardSymbol, val figure: CardFigure) : Card() {
                 )
         )
 
-        private fun figureToText(figure: CardFigure): String {
+        fun figureToText(figure: CardFigure): String {
             return when (figure) {
                 CardFigure.ACE -> "A"
                 CardFigure.N2 -> "2"
@@ -242,7 +239,7 @@ class PlayingCard(val symbol: CardSymbol, val figure: CardFigure) : Card() {
             }
         }
 
-        private fun symbolToColor(symbol: CardSymbol): Int {
+        fun symbolToColor(symbol: CardSymbol): Int {
             return when (symbol) {
                 CardSymbol.CLUBS -> ContextCompat.getColor(context, R.color.black)
                 CardSymbol.SPADES -> ContextCompat.getColor(context, R.color.black)
